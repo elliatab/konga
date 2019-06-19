@@ -21,8 +21,16 @@
         $scope.basic_auth_credentials;
         $scope.hmac_auth_credentials;
         $scope.oauth2_credentials;
+        $scope.gql_operation_whitelist;
+
 
         $scope.credentialGroups = [
+          {
+            id: 'gql-op-whitelist',
+            name: 'OPERATION WHITELIST',
+            icon: 'mdi-fingerprint',
+            fetchFunc: fetchGQLWhitelist
+          },
           {
             id: 'basic-auth',
             name: 'BASIC',
@@ -58,9 +66,9 @@
         $scope.availablePlugins = $rootScope.Gateway.plugins.available_on_server;
 
         // Remove credentials that are not available on the server
-        $scope.credentialGroups = _.filter($scope.credentialGroups, function (item) {
-          return $scope.availablePlugins[item.id];
-        })
+        // $scope.credentialGroups = _.filter($scope.credentialGroups, function (item) {
+        //   return $scope.availablePlugins[item.id];
+        // })
 
         // Fetch the remaining ones
         $scope.credentialGroups.forEach(function (item) {
@@ -73,12 +81,14 @@
         $scope.createApiKey = createApiKey
         $scope.createJWT = createJWT
         $scope.manageBasicAuth = manageBasicAuth
+        $scope.manageGraphQLOperation = manageGraphQLOperation
         $scope.createOAuth2 = createOAuth2
         $scope.createHMAC = createHMAC
         $scope.deleteKey = deleteKey
         $scope.deleteJWT = deleteJWT
         $scope.deleteOAuth2 = deleteOAuth2
         $scope.deleteBasicAuthCredentials = deleteBasicAuthCredentials
+        $scope.deleteGraphQLOperation = deleteGraphQLOperation
         $scope.deleteHMACAuthCredentials = deleteHMACAuthCredentials
         $scope.setActiveGroup = setActiveGroup;
         $scope.filterGroup = filterGroup;
@@ -104,6 +114,24 @@
                   function onSuccess(result) {
                     MessageService.success('Credentials deleted successfully');
                     fetchHMACAuthCredentials()
+                  }
+                )
+
+            }, function decline() {
+            })
+        }
+
+        function deleteGraphQLOperation($index, operation) {
+          DialogService.prompt(
+            "Delete Operation", "Really want to delete the selected operation?",
+            ['No don\'t', 'Yes! delete it'],
+            function accept() {
+              ConsumerService
+                .removeCredential($scope.consumer.id, 'gql-op-whitelist', operation.id)
+                .then(
+                  function onSuccess(result) {
+                    MessageService.success('Operation deleted successfully');
+                    fetchGQLWhitelist()
                   }
                 )
 
@@ -199,6 +227,25 @@
           });
         }
 
+        function manageGraphQLOperation(operation) {
+          $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'js/app/consumers/credentials/manage-gql-op-whitelist-controller.html',
+            controller: 'ManageGqlOpWhitelistController',
+            controllerAs: '$ctrl',
+            resolve: {
+              _consumer: function () {
+                return $scope.consumer
+              },
+              _cred: function () {
+                return operation
+              }
+            }
+          });
+        }
+
 
         function manageBasicAuth(cred) {
           $uibModal.open({
@@ -283,6 +330,13 @@
           })
         }
 
+        function fetchGQLWhitelist() {
+          ConsumerService.loadCredentials($scope.consumer.id, 'gql-op-whitelist')
+            .then(function (res) {
+              console.log("FETCH GRAPHQL OP WHITELIST =>", res.data);
+              $scope.gql_operation_whitelist = res.data;
+            })
+        }
 
         function fetchBasicAuthCredentials() {
           ConsumerService.loadCredentials($scope.consumer.id, 'basic-auth')
@@ -333,6 +387,9 @@
          * ----------------------------------------------------------
          */
 
+        $scope.$on('consumer.gql-op-whitelist.created', function (ev, group) {
+          fetchGQLWhitelist()
+        })
 
         $scope.$on('consumer.key.created', function (ev, group) {
           fetchKeys()

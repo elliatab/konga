@@ -65,5 +65,5 @@ module.exports.http = {
    * since that's the only time Express will cache flat-files.                *
    *                                                                          *
    ***************************************************************************/
-  cache: 31557600000
+  cache: 0
 };
