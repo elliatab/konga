@@ -21,8 +21,8 @@
           $scope.operation = angular.copy(_cred)
         } else {
           $scope.operation = {
-            name: '',
-            hash: ''
+            operationName: '',
+            query: ''
           }
         }
 

@@ -30,20 +30,27 @@
                 '</h5>' +
                 '</div>' +
                 '<div class="modal-body">' +
-                '<pre ng-bind-html="item"></pre>' +
+                '<label>Original Operation</label>' +
+                '<pre ng-bind-html="operation"></pre>' +
+                '<label>Operation Signature</label>' +
+                '<pre ng-bind-html="signature"></pre>' +
                 // '<pre class="no-margin">{{item}}</pre>' +
                 '</div>',
-                controller: function($scope,$uibModalInstance,_item){
-                  $scope.item = _item
+                controller: function($scope,$uibModalInstance,_operation, _signature){
+                  $scope.operation = _operation
+                  $scope.signature = _signature
                   $scope.close = function(){
                     $uibModalInstance.dismiss()
                   }
                 },
                 controllerAs: '$ctrl',
                 resolve: {
-                  _item: function () {
-                    return item.replace(/\n/g, '<br />');
-                  }
+                  _operation: function () {
+                    return item.operation.replace(/\n/g, '<br />');
+                  },
+                  _signature: function () {
+                    return item.signature.replace(/\n/g, '<br />');
+                  },
                 }
               });
             }
