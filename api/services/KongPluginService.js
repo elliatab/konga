@@ -290,6 +290,9 @@ var KongPluginService = _.merge(_.cloneDeep(require('./KongService')), {
           },
           "request-termination": {
             description: "This plugin terminates incoming requests with a specified status code and message. This allows to (temporarily) block an API or Consumer."
+          },           
+          "graphql-operation-whitelist": {
+            description: "Secure your graph by enforcing a safelist of registered operations"
           },
         }
       },
